@@ -34,13 +34,13 @@ INSTALLATION:
 
 4. Configure ox_inventory item:
    ['takenncs-tablet'] = {
-       label = 'Boosting Tablet',
-       weight = 500,
-       description = 'Access to boosting network',
+       label = 'Kahtlane Tahvel',
+       weight = 0,
+       description = 'Süsteemid ootavad?',
        client = {
            export = 'takenncs-boosting.openTablet',
        }
-   }
+   },
 
 CONFIGURATION (config.lua):
 Config = {
