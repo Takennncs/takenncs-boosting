@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<head>
+    <title>Takenncs Boosting 2.0</title>
+    <meta charset="UTF-8">
+    <html lang="en" class="scroll-smooth">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="style.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@ryangjchandler/spruce@2.x.x/dist/spruce.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="script.js"></script>
+</head>
+
+<body 
+    x-data="boosting" x-init="init()" @keydown.window="handleKeydown" x-cloak>
+<div x-show="showMenu" x-transition class="absolute mx-auto left-[2vh] right-[2vh] top-[8vh] w-[63.4vw] h-[68vh] bg-slate-900 overflow-hidden">
+   <div class="h-full text-gray-200 flex flex-col relative">
+    <div x-show="isLoading" class="z-50 absolute inset-0 flex justify-center items-center bg-slate-900 bg-opacity-60">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-indigo-500"></div>
+    </div>
+
+    <div class="w-full p-6 space-y-6 -mb-4">
+        <div class="flex justify-between items-center text-white">
+             <h2></h2>  <!--Lisa avalehe page kui vajalikuks pead  <h2>Boosting</h2>  -->
+
+            <div class="flex space-x-2">
+                <button 
+                    x-show="!inQueue" 
+                    @click="joinQueue()" 
+                    class="text-white px-4 py-2 text-sm font-medium rounded-md bg-green-500 hover:bg-green-600 shadow-md transition duration-200">
+                    Alusta otsimist
+                </button>
+                <button 
+                    x-show="inQueue" 
+                    @click="leaveQueue()" 
+                    class="text-white px-4 py-2 text-sm font-medium rounded-md bg-red-500 hover:bg-red-600 shadow-md transition duration-200">
+                    Lõpeta otsimine
+                </button>
+            </div>
+        </div>
+
+<nav aria-label="progress" class="w-full">
+  <ol role="list" class="flex items-center justify-between relative">
+    <template x-for="(level, index) in levels" :key="index">
+      <li class="flex-1 flex flex-col items-center relative">
+        <div class="absolute left-0 top-1/2 w-full h-1 -translate-y-1/2">
+          <div class="w-full h-1 bg-gray-300 rounded">
+            <div class="h-1 bg-emerald-500 rounded transition-all duration-300"
+                 :style="`
+                   width: ${
+                     index === 0
+                     ? Math.min(boostingXp / level.xp, 1) * 100
+                     : Math.min(Math.max((boostingXp - levels[index-1].xp) / (level.xp - levels[index-1].xp), 0), 1) * 100
+                   }%`">
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col items-center z-10">
+          <div class="w-8 h-8 rounded-full flex items-center justify-center border-2 transition duration-300"
+               :class="boostingXp >= level.xp ? 'bg-emerald-500 border-emerald-500' : 'bg-gray-900 border-gray-500'">
+                <svg x-show="boostingXp >= level.xp" class="w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+            <svg x-show="boostingXp < level.xp" class="w-4 h-4 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </div>
+          <span class="mt-2 text-sm font-medium" :class="boostingXp >= level.xp ? 'text-gray-200' : 'text-gray-500'" x-text="level.label"></span>
+        </div>
+      </li>
+    </template>
+  </ol>
+</nav>
+<div class="mt-2 p-3 bg-gray-800/50 border border-gray-700 rounded-lg text-center">
+    <p class="text-sm font-medium text-gray-300">
+        Kogemuste kasvades tõuseb sinu väärtus tööturul, võimaldades sul teenida suuremat tulu.
+    </p>
+</div>
+ <div class="bg-gray-800 p-5 rounded-xl border-l-4 border-blue-500">
+        <h2 class="text-xl font-bold text-white mb-4 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Aktiivsed tööotsad
+        </h2>
+        <template x-if="!currentContract">
+            <div class="bg-gray-700/50 p-5 rounded-lg text-center border-2 border-dashed border-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p class="mt-2 text-gray-400">Hetkel pole aktiivseid tööotsi. Alusta uut tööd!</p>
+            </div>
+        </template>
+        <template x-if="currentContract">
+            <div class="bg-gray-700 p-4 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-lg">
+                <div class="flex-1">
+                    <div class="flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <h3 class="font-semibold text-white">
+                            Sõiduki <span class="text-blue-300" x-text="currentContract.vehicleName"></span>
+                        </h3>
+                    </div>
+                    <p class="text-sm text-gray-300 mt-1">
+                        Tasu: <span class="font-bold text-green-400">$<span x-text="currentContract.price"></span></span>
+                    </p>
+                </div>
+                <button 
+                    @click="cancelContract(currentContract.id)" 
+                    class="w-full sm:w-auto flex items-center justify-center gap-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-all shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Tühista Boost
+                </button>
+            </div>
+        </template>
+    </div>
+
+    <div class="bg-gray-800 p-5 rounded-xl border-l-4 border-purple-500 mt-8">
+        <h2 class="text-xl font-bold text-white mb-4 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Kohalikud soovivad masinaid
+        </h2>
+        <template x-if="availableContracts.length === 0">
+            <div class="bg-gray-700/50 p-5 rounded-lg text-center border-2 border-dashed border-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mx-auto text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <p class="mt-2 text-gray-400">Hetkel ei ole saadaval ühtegi tööotsa. Palun proovi hiljem uuesti.</p>
+            </div>
+        </template>
+        <div class="grid gap-3 mt-4">
+            <template x-for="(value, index) in availableContracts" :key="index">
+                <div class="bg-gray-700 p-4 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 hover:bg-gray-600 transition-all shadow-md">
+                    <div class="flex-1">
+                        <h3 class="font-medium text-white">
+                            Sõiduki <span class="text-purple-300" x-text="value.vehicleName"></span>
+                        </h3>
+                        <p class="text-sm text-gray-300 mt-1">
+                            Hind: <span class="font-medium text-green-400">$<span x-text="value.price"></span></span>
+                        </p>
+                    </div>
+                    <button 
+                        @click="acceptContract(value.id)" 
+                        class="w-full sm:w-auto flex items-center justify-center gap-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-all shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                       Aktiveeri boost
+                    </button>
+                </div>
+            </template>
+         </div>
+    </div>
+</div>
+
+<!-- UI END -->
