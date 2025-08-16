@@ -3,8 +3,4 @@ CREATE TABLE `takenncs-boosting` (
 	`xp` INT(11) NOT NULL DEFAULT '0',
 	`finished` INT(11) NULL DEFAULT '0',
 	PRIMARY KEY (`charId`) USING BTREE
-)
-COLLATE='utf8mb3_general_ci'
-ENGINE=InnoDB
-ROW_FORMAT=DYNAMIC
-;
+) ENGINE=InnoDB AUTO_INCREMENT=1;
