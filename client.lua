@@ -50,13 +50,14 @@ end)
 
 exports('openTablet', function()
     SetNuiFocus(true, true)
-    SendNUIMessage({action = 'openMenu', data = {levels = cfg.levels}})
-    exports['takenncs-scripts']:toggleTab(true)
+    SendNUIMessage({
+        action = 'openMenu',
+        data = { levels = cfg.levels } 
+    })
 end)
 
 RegisterNUICallback('closeMenu', function(data, cb)
     SetNuiFocus(false, false)
-    exports['takenncs-scripts']:toggleTab(false)
     cb(true)
 end)
 
@@ -307,4 +308,5 @@ end)
 
 RegisterNetEvent('takenncs-boosting:client:requestData', function()
     SendNUIMessage({ action = 'requestData' })
+
 end)
