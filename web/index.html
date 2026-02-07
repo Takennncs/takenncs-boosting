@@ -97,6 +97,7 @@
             </div>
         </template>
         <template x-if="currentContract">
+       <template x-if="currentContract">
             <div class="bg-gray-700 p-4 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-lg">
                 <div class="flex-1">
                     <div class="flex items-center gap-2">
@@ -104,13 +105,22 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
                         <h3 class="font-semibold text-white">
-                            Sõiduk <span class="text-blue-300" x-text="currentContract.vehicleName"></span>
+                            Sõiduk:
+                            <span class="text-blue-300" x-text="currentContract.vehicleName"></span>
                         </h3>
+
+                        <p class="text-sm text-gray-300 mt-1">
+                            Numbrimärk:
+                            <span class="font-medium text-white" x-text="currentContract.licensePlate"></span>
+                        </p>
+
+                        <p class="text-sm text-gray-300 mt-1">
+                            Tasu:
+                            <span class="font-bold text-green-400">
+                                $<span x-text="currentContract.price"></span>
+                            </span>
+                        </p>
                     </div>
-                    <p class="text-sm text-gray-300 mt-1">
-                        Tasu: <span class="font-bold text-green-400">$<span x-text="currentContract.price"></span></span>
-                    </p>
-                </div>
                 <button 
                     @click="cancelContract(currentContract.id)" 
                     class="w-full sm:w-auto flex items-center justify-center gap-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-all shadow-sm">
@@ -165,3 +175,4 @@
 
 
 <!-- UI END -->
+
